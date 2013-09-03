@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Body Image JS</title>
+    <style>
+    	html {
+    		width: 100%;
+    		height: 100%;
+    	}
+    	body {
+    		margin: 0;
+    		padding: 0;
+    		transform-origin: center;
+            -webkit-transition: -webkit-transform 1s ease;
+            transition: transform 2s ease;
+    	}
+            body.times2 {
+                -webkit-transform: scale(2);
+                transform: scale(2);
+            }
+            body.times3 {
+                -webkit-transform: scale(3);
+                transform: scale(3);
+            }
+            body.times4 {
+                -webkit-transform: scale(4);
+                transform: scale(4);
+            }
+    	.Page {
+    		max-width: 960px;
+    		margin: 0 auto;
+            overflow: hidden;
+    	}
+    	.right {
+    		float: right;
+    		margin: 0 0 1em 2em;
+    	}
+    	.poster {
+    		position: absolute;
+    		left: 0;
+    		top: 0;
+    	}
+    	.origin {
+    		position: absolute;
+    		width: 3px;
+    		height: 3px;
+    		background: red;
+    		border-radius: 50%;
+    	}
+    </style>
+</head>
+<body>
+	<div class="Page">
+		<h2>Lorem ipsum dolor sit amet</h2>
+		<p>Consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.</p>
+		<h3>Duis autem vel eum iriure dolor</h3>
+		<p>In hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla.</p>
+		<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.</p>
+		<p><a class="bodyimage example1" href="img/example1-large.jpg"><img class="right" src="img/example1-small.jpg" alt="" /></a>In hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla.</p>
+		<p>Aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto.</p>
+		<p>Consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. In hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla.</p>
+	</div>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+	<script src="../bodyimage.js"></script>
+	<script>
+		window.example1 = new window.BodyImage('a.example1');
+	</script>
+</body>
+</html>
