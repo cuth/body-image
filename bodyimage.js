@@ -165,9 +165,10 @@
 					width: maxWidth,
 					height: maxHeight,
 					overflow: 'hidden',
-					transformOrigin: (originX+bodyX*.5)+'px '+(originY+bodyY*.5)+'px'
-					//transform: 'translate('+bodyX+'px, '+bodyY+'px) scale('+scale+')'
-				}).addClass('times3');
+					transformOrigin: (originX+bodyX/scale)+'px '+(originY+bodyY/scale)+'px',
+                    transform: 'scale('+scale+')'
+					// transform: 'translate('+bodyX+'px, '+bodyY+'px) scale('+scale+')'
+				});//.addClass('times2');
 			},
 			bindEvents = function () {
 				var self = this;
