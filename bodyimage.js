@@ -165,24 +165,39 @@
 					width: maxWidth,
 					height: maxHeight,
 					overflow: 'hidden',
-					transformOrigin: (originX+bodyX/scale)+'px '+(originY+bodyY/scale)+'px',
-                    transform: 'scale('+scale+')'
-					// transform: 'translate('+bodyX+'px, '+bodyY+'px) scale('+scale+')'
-				});//.addClass('times2');
+					transformOrigin: (originX)+'px '+(originY)+'px',
+					transform: 'translate('+-bodyX+'px, '+-bodyY+'px) scale('+scale+')'
+				});
+                this.active = true;
 			},
+            revertBody = function () {
+                this.active = false;
+                this.$body.css({
+                    transform: 'translate(0,0) scale(1)'
+                });
+            },
 			bindEvents = function () {
 				var self = this;
 				this.$el.bind('click', function (e) {
 					e.preventDefault();
+                    if (self.active) {
+                        revertBody.call(self);
+                        return;
+                    }
 					expandImage.call(self);
 				});
+                this.$body.on('transitionend webkitTransitionEnd', function () {
+                    if (!self.active) {
+                        self.$body.removeAttr('style');
+                    }
+                });
 			},
 			init = function (el) {
 				this.$el = $(el);
 				if (this.$el.length !== 1) return false;
 				this.$image = this.$el.find('img');
 				this.$body = $('body');
-				//this.$body.css({ transform: 'translate(0px,0px)' });
+                this.active = false;
 				bindEvents.call(this);
 				return true;
 			};
