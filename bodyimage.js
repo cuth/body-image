@@ -4,18 +4,15 @@
         this.result = this.init(el, options);
     };
     w.BodyImage.prototype = (function () {
-        var setImg = function (img) {
-                img.resetFlag = false;
-                img.width = img.$el.width();
-                img.height = img.$el.height();
-                img.pos = img.$el.offset();
-            },
-            setWin = function () {
-                this.win.resetFlag = false;
+        var setDimensions = function () {
                 this.win.width = this.win.$el.width();
                 this.win.height = this.win.$el.height();
                 this.win.scrollLeft = this.win.$el.scrollLeft();
                 this.win.scrollTop = this.win.$el.scrollTop();
+                for (var x = 0, xlen = this.img.length; x < xlen; x += 1) {
+                    this.img[x].pos = this.img[x].$el.offset();
+                }
+                this.resetFlag = false;
             },
             fullSize = function (index) {
                 var img = this.img[index],
@@ -34,11 +31,8 @@
                 var self = this,
                     img = this.img[index],
                     ratio, width, height, originX, originY, bodyX, bodyY, scale;
-                if (img.resetFlag) {
-                    setImg.call(this, img);
-                }
-                if (this.win.resetFlag) {
-                    setWin.call(this);
+                if (this.resetFlag) {
+                    setDimensions.call(this);
                 }
                 ratio = img.width / img.height;
                 width = this.win.width;
@@ -111,10 +105,7 @@
                 });
                 this.win.$el.on('resize scroll', function (e) {
                     if (e.type === 'scroll' && self.inTransition) return;
-                    self.win.resetFlag = true;
-                    for (var x = 0, xlen = self.img.length; x < xlen; x += 1) {
-                        self.img[x].resetFlag = true;
-                    }
+                    self.resetFlag = true;
                     if (self.active >= 0) {
                         revertBody.call(self);
                     }
@@ -140,14 +131,18 @@
                 if (this.$el.length < 1) return false;
                 this.img = [];
                 this.$el.each(function (i) {
-                    var img = self.img[i] = {};
-                    img.$el = $(this).find('img');
-                    img.fullSize = false;
-                    setImg.call(self, img);
+                    var $img = $(this).find('img');
+                    self.img[i] = {
+                        $el: $img,
+                        fullSize: false,
+                        width: $img.width(),
+                        height: $img.height()
+                    };
                 });
                 this.$body = $('body');
                 this.win = { $el: $w };
-                setWin.call(this);
+                setDimensions.call(this);
+                this.resetFlag = false;
                 this.active = -1;
                 this.inTransition = false;
                 bindEvents.call(this);
