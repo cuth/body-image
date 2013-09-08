@@ -11,9 +11,10 @@
     	body {
     		margin: 0;
     		padding: 0;
-            -webkit-transition: -webkit-transform 1s ease;
-            transition: transform 2s ease;
+            -webkit-transition: -webkit-transform 1s ease, -webkit-transform-origin 1s ease-out;
+            transition: transform 1s ease, transform-origin 1s ease-out;
             -webkit-transform: scale(1) translate(0,0);
+            transform: scale(1) translate(0,0);
     	}
         img {
             border: 0;
@@ -27,6 +28,10 @@
     		float: right;
     		margin: 0 0 1em 2em;
     	}
+        .left {
+            float: left;
+            margin: 0 2em 1em 0;
+        }
     	.poster {
     		position: absolute;
     		left: 0;
@@ -46,7 +51,7 @@
 		<h2>Lorem ipsum dolor sit amet</h2>
 		<p>Consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.</p>
 		<h3>Duis autem vel eum iriure dolor</h3>
-		<p>In hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla.</p>
+		<p><a class="bodyimage example2" href="img/example2-large.jpg"><img class="left" src="img/example2-small.jpg" alt="" /></a>In hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla.</p>
 		<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.</p>
 		<p><a class="bodyimage example1" href="img/example1-large.jpg"><img class="right" src="img/example1-small.jpg" alt="" /></a>In hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla.</p>
 		<p>Aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto.</p>
@@ -55,7 +60,7 @@
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 	<script src="../bodyimage.js"></script>
 	<script>
-		window.example1 = new window.BodyImage('a.example1');
+		window.example1 = new window.BodyImage('a.bodyimage', { useArrowKeys: true });
 	</script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 (function (w, d, $) {
     "use strict";
-    w.BodyImage = function (el) {
-        this.result = this.init(el);
+    w.BodyImage = function (el, options) {
+        this.result = this.init(el, options);
     };
     w.BodyImage.prototype = (function () {
         var setImg = function (img) {
@@ -55,6 +55,7 @@
                 if (!img.fullSize) {
                     fullSize.call(this, index);
                 }
+                this.inTransition = true;
                 this.$body.css({
                     width: this.win.width,
                     height: this.win.height,
@@ -62,41 +63,80 @@
                     transformOrigin: (originX)+'px '+(originY)+'px',
                     transform: 'translate('+-bodyX+'px, '+-bodyY+'px) scale('+scale+')'
                 });
-                this.active = true;
+                this.active = index;
             },
             revertBody = function () {
-                this.active = false;
+                this.active = -1;
+                this.inTransition = true;
                 this.$body.css({
+                    transformOrigin: 'center center',
                     transform: 'translate(0,0) scale(1)'
                 });
+            },
+            nextImg = function () {
+                var num = this.active + 1;
+                if (num >= this.img.length) {
+                    num = -1;
+                    revertBody.call(this);
+                    return;
+                }
+                expandImage.call(this, num);
+            },
+            previousImg = function () {
+                var num = this.active - 1;
+                if (num === -1) {
+                    revertBody.call(this);
+                    return;
+                }
+                if (num < -1) {
+                    num = this.img.length - 1;
+                }
+                expandImage.call(this, num);
             },
             bindEvents = function () {
                 var self = this;
                 this.$el.bind('click', function (e) {
                     e.preventDefault();
-                    if (self.active) {
+                    if (self.active >= 0) {
                         revertBody.call(self);
                         return;
                     }
                     expandImage.call(self, self.$el.index(this));
                 });
                 this.$body.on('transitionend webkitTransitionEnd', function () {
-                    if (!self.active) {
+                    self.inTransition = false;
+                    if (self.active === -1) {
                         self.$body.removeAttr('style');
                     }
                 });
-                this.win.$el.on('resize', function () {
+                this.win.$el.on('resize scroll', function (e) {
+                    if (e.type === 'scroll' && self.inTransition) return;
                     self.win.resetFlag = true;
                     for (var x = 0, xlen = self.img.length; x < xlen; x += 1) {
                         self.img[x].resetFlag = true;
                     }
-                    revertBody.call(self);
+                    if (self.active >= 0) {
+                        revertBody.call(self);
+                    }
                 });
+                if (this.opts.useArrowKeys) {
+                    this.win.$el.on('keydown', function (e) {
+                        if (e.which === 39) {
+                            nextImg.call(self);
+                        }
+                        if (e.which === 37) {
+                            previousImg.call(self);
+                        }
+                    });
+                }
             },
-            init = function (el) {
+            init = function (el, options) {
                 var self = this,
                     $w = $(w);
                 this.$el = $(el);
+                this.opts = $.extend({
+                    useArrowKeys: true
+                }, options);
                 if (this.$el.length < 1) return false;
                 this.img = [];
                 this.$el.each(function (i) {
@@ -108,7 +148,8 @@
                 this.$body = $('body');
                 this.win = { $el: $w };
                 setWin.call(this);
-                this.active = false;
+                this.active = -1;
+                this.inTransition = false;
                 bindEvents.call(this);
                 return true;
             };
