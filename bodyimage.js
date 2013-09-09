@@ -115,8 +115,16 @@
                         revertBody.call(self);
                     }
                 });
-                this.win.$el.on('mousewheel', function (e) {
-                    if (self.inTransition) return false;
+                this.$body.on('mousewheel', function (e) {
+                    if (self.active === -1) return true;
+                    if (e.originalEvent.wheelDelta < 0) {
+                        nextImage.call(self);
+                        return false;
+                    }
+                    if (e.originalEvent.wheelDelta > 0) {
+                        previousImage.call(self);
+                        return false;
+                    }
                 });
                 this.win.$el.on('keydown', function (e) {
                     if (e.which === 27 && self.active >= 0) {
