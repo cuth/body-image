@@ -14,7 +14,7 @@
                 }
                 this.resetFlag = false;
             },
-            fullSize = function (index) {
+            setFullSizeImage = function (index) {
                 var img = this.img[index],
                     temp = new Image();
                 temp.src = this.$el.eq(index).attr('href');
@@ -30,32 +30,31 @@
             expandImage = function (index) {
                 var self = this,
                     img = this.img[index],
-                    ratio, width, height, originX, originY, bodyX, bodyY, scale;
+                    width, height, originX, originY, bodyX, bodyY, scale;
                 if (this.resetFlag) {
                     setDimensions.call(this);
                 }
-                ratio = img.width / img.height;
-                width = this.win.width;
-                height = this.win.width / ratio;
-                if (height > this.win.height) {
-                    height = this.win.height;
-                    width = this.win.height * ratio;
+                width = Math.min(this.win.width, img.maxWidth);
+                height = width / img.ratio;
+                if (height > Math.min(this.win.height, img.maxHeight)) {
+                    height = Math.min(this.win.height, img.maxHeight);
+                    width = height * img.ratio;
                 }
-                originX = img.pos.left + img.width / 2;
-                originY = img.pos.top + img.height / 2;
-                scale = width / img.width;
-                bodyX = (originX - this.win.scrollLeft - this.win.width / 2);
-                bodyY = (originY - this.win.scrollTop - this.win.height / 2);
+                originX = img.pos.left + img.outerWidth / 2;
+                originY = img.pos.top + img.outerHeight / 2;
+                scale = width / img.outerWidth;
+                bodyX = -(originX - this.win.scrollLeft - this.win.width / 2);
+                bodyY = -(originY - this.win.scrollTop - this.win.height / 2);
                 if (!img.fullSize) {
-                    fullSize.call(this, index);
+                    setFullSizeImage.call(this, index);
                 }
                 this.inTransition = true;
                 this.$body.css({
                     width: this.win.width,
                     height: this.win.height,
                     overflow: 'hidden',
-                    transformOrigin: (originX)+'px '+(originY)+'px',
-                    transform: 'translate('+-bodyX+'px, '+-bodyY+'px) scale('+scale+')'
+                    transformOrigin: originX + 'px ' + originY + 'px',
+                    transform: 'translate(' + bodyX + 'px, ' + bodyY + 'px) scale(' + scale + ')'
                 });
                 this.active = index;
             },
@@ -67,7 +66,7 @@
                     transform: 'translate(0,0) scale(1)'
                 });
             },
-            nextImg = function () {
+            nextImage = function () {
                 var num = this.active + 1;
                 if (num >= this.img.length) {
                     num = -1;
@@ -76,7 +75,7 @@
                 }
                 expandImage.call(this, num);
             },
-            previousImg = function () {
+            previousImage = function () {
                 var num = this.active - 1;
                 if (num === -1) {
                     revertBody.call(this);
@@ -89,18 +88,24 @@
             },
             bindEvents = function () {
                 var self = this;
-                this.$el.bind('click', function (e) {
+                this.$el.on('click', function (e) {
                     e.preventDefault();
+                    e.stopPropagation();
                     if (self.active >= 0) {
                         revertBody.call(self);
-                        return;
+                        return false;
                     }
                     expandImage.call(self, self.$el.index(this));
+                });
+                this.$body.on('click', function () {
+                    if (self.active >= 0) {
+                        revertBody.call(self);
+                    }
                 });
                 this.$body.on('transitionend webkitTransitionEnd', function () {
                     self.inTransition = false;
                     if (self.active === -1) {
-                        self.$body.removeAttr('style');
+                        self.$body.removeAttr('style').removeClass(self.opts.classPrefix + '-active');
                     }
                 });
                 this.win.$el.on('resize scroll', function (e) {
@@ -110,33 +115,62 @@
                         revertBody.call(self);
                     }
                 });
-                if (this.opts.useArrowKeys) {
-                    this.win.$el.on('keydown', function (e) {
+                this.win.$el.on('mousewheel', function (e) {
+                    if (self.inTransition) return false;
+                });
+                this.win.$el.on('keydown', function (e) {
+                    if (e.which === 27 && self.active >= 0) {
+                        revertBody.call(self);
+                    }
+                    if (self.opts.useArrowKeys) {
                         if (e.which === 39) {
-                            nextImg.call(self);
+                            nextImage.call(self);
                         }
                         if (e.which === 37) {
-                            previousImg.call(self);
+                            previousImage.call(self);
                         }
-                    });
-                }
+                    }
+                });
             },
             init = function (el, options) {
                 var self = this,
                     $w = $(w);
                 this.$el = $(el);
                 this.opts = $.extend({
-                    useArrowKeys: true
+                    useArrowKeys: false
                 }, options);
                 if (this.$el.length < 1) return false;
                 this.img = [];
                 this.$el.each(function (i) {
-                    var $img = $(this).find('img');
+                    var $a = $(this),
+                        $img = $a.find('img'),
+                        width = $img.width(),
+                        height = $img.height(),
+                        outerWidth = $img.outerWidth(),
+                        outerHeight = $img.outerHeight(),
+                        ratio = outerWidth / outerHeight,
+                        attrWidth = parseInt($a.attr('data-width'), 10),
+                        attrHeight = parseInt($a.attr('data-height'), 10),
+                        maxWidth = 100000, maxHeight = 100000;
+                    if (attrWidth > 0) {
+                        maxWidth = attrWidth;
+                        maxHeight = attrWidth / ratio;
+                    } else if (attrHeight > 0) {
+                        maxHeight = attrHeight;
+                        maxWidth = attrHeight * ratio;
+                    }
+                    maxWidth += outerWidth - width;
+                    maxHeight += outerHeight - height;
                     self.img[i] = {
                         $el: $img,
                         fullSize: false,
-                        width: $img.width(),
-                        height: $img.height()
+                        width: width,
+                        height: height,
+                        outerWidth: outerWidth,
+                        outerHeight: outerHeight,
+                        ratio: ratio,
+                        maxWidth: maxWidth,
+                        maxHeight: maxHeight
                     };
                 });
                 this.$body = $('body');
