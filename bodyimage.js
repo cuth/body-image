@@ -140,15 +140,8 @@
                     }
                 });
             },
-            init = function (el, options) {
-                var self = this,
-                    $w = $(w);
-                this.$el = $(el);
-                this.opts = $.extend({
-                    useArrowKeys: false
-                }, options);
-                if (this.$el.length < 1) return false;
-                this.img = [];
+            prepare = function () {
+                var self = this;
                 this.$el.each(function (i) {
                     var $a = $(this),
                         $img = $a.find('img'),
@@ -181,13 +174,30 @@
                         maxHeight: maxHeight
                     };
                 });
-                this.$body = $('body');
-                this.win = { $el: $w };
                 setDimensions.call(this);
+                bindEvents.call(this);
+            },
+            init = function (el, options) {
+                var self = this;
+                this.$el = $(el);
+                this.opts = $.extend({
+                    useArrowKeys: false,
+                    windowLoad: true
+                }, options);
+                if (this.$el.length < 1) return false;
+                this.win = { $el: $(w) };
+                this.$body = $('body');
                 this.resetFlag = false;
                 this.active = -1;
                 this.inTransition = false;
-                bindEvents.call(this);
+                this.img = [];
+                if (this.opts.windowLoad) {
+                    this.win.$el.load(function () {
+                        prepare.call(self);
+                    });
+                } else {
+                    prepare.call(this);
+                }
                 return true;
             };
         return {
