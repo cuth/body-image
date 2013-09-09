@@ -105,7 +105,7 @@
                 this.$body.on('transitionend webkitTransitionEnd', function () {
                     self.inTransition = false;
                     if (self.active === -1) {
-                        self.$body.removeAttr('style').removeClass(self.opts.classPrefix + '-active');
+                        self.$body.removeAttr('style');
                     }
                 });
                 this.win.$el.on('resize scroll', function (e) {
