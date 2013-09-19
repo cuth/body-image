@@ -45,16 +45,17 @@
                 scale = width / img.outerWidth;
                 bodyX = -(originX - this.win.scrollLeft - this.win.width / 2);
                 bodyY = -(originY - this.win.scrollTop - this.win.height / 2);
-                if (!img.fullSize) {
-                    setFullSizeImage.call(this, index);
-                }
                 this.inTransition = true;
+                if (!self.isTouch) {
+                    this.$body.css({
+                        width: this.win.width,
+                        height: this.win.height,
+                        overflow: 'hidden'
+                    });
+                }
                 this.$body.css({
-                    width: this.win.width,
-                    height: this.win.height,
-                    overflow: 'hidden',
                     transformOrigin: originX + 'px ' + originY + 'px',
-                    transform: 'translate(' + bodyX + 'px, ' + bodyY + 'px) scale(' + scale + ')'
+                    transform: 'translate3d(' + bodyX + 'px, ' + bodyY + 'px, 0) scale(' + scale + ')'
                 });
                 this.active = index;
             },
@@ -63,7 +64,7 @@
                 this.inTransition = true;
                 this.$body.css({
                     transformOrigin: 'center center',
-                    transform: 'translate(0,0) scale(1)'
+                    transform: 'translate3d(0,0,0) scale(1)'
                 });
             },
             nextImage = function () {
@@ -88,7 +89,18 @@
             },
             bindEvents = function () {
                 var self = this;
+                this.$body.on('transitionend webkitTransitionEnd', function () {
+                    self.inTransition = false;
+                    if (self.active === -1) {
+                        self.$body.removeAttr('style');
+                        return;
+                    }
+                    if (!self.img[self.active].fullSize) {
+                        setFullSizeImage.call(self, self.active);
+                    }
+                });
                 this.$el.on('click', function (e) {
+                    console.log(e);
                     e.preventDefault();
                     e.stopPropagation();
                     if (self.active >= 0) {
@@ -102,16 +114,10 @@
                         revertBody.call(self);
                     }
                 });
-                this.$body.on('transitionend webkitTransitionEnd', function () {
-                    self.inTransition = false;
-                    if (self.active === -1) {
-                        self.$body.removeAttr('style');
-                    }
-                });
                 this.win.$el.on('resize scroll', function (e) {
                     if (e.type === 'scroll' && self.inTransition) return;
                     self.resetFlag = true;
-                    if (self.active >= 0) {
+                    if (!self.isTouch && self.active >= 0) {
                         revertBody.call(self);
                     }
                 });
@@ -130,13 +136,12 @@
                     if (e.which === 27 && self.active >= 0) {
                         revertBody.call(self);
                     }
-                    if (self.opts.useArrowKeys) {
-                        if (e.which === 39) {
-                            nextImage.call(self);
-                        }
-                        if (e.which === 37) {
-                            previousImage.call(self);
-                        }
+                    if (!self.opts.useArrowKeys && self.active === -1) return true;
+                    if (e.which === 39) {
+                        nextImage.call(self);
+                    }
+                    if (e.which === 37) {
+                        previousImage.call(self);
                     }
                 });
             },
@@ -185,6 +190,7 @@
                     windowLoad: true
                 }, options);
                 if (this.$el.length < 1) return false;
+                this.isTouch = ('ontouchstart' in window);
                 this.win = { $el: $(w) };
                 this.$body = $('body');
                 this.resetFlag = false;
